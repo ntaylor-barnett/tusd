@@ -518,7 +518,16 @@ func (upload s3Upload) fetchInfo(ctx context.Context) (info handler.FileInfo, er
 	}
 	if incompletePartObject != nil {
 		defer incompletePartObject.Body.Close()
-		offset += *incompletePartObject.ContentLength
+		if incompletePartObject.ContentLength == nil {
+			// we will apply a workaround to get the content length in this instance.
+			data, err := ioutil.ReadAll(incompletePartObject.Body)
+			if err != nil {
+				return info, err
+			}
+			offset += int64(len(data))
+		} else {
+			offset += *incompletePartObject.ContentLength
+		}
 	}
 
 	info.Offset = offset

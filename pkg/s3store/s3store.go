@@ -885,7 +885,7 @@ func (store S3Store) downloadIncompletePartForUpload(ctx context.Context, upload
 	if err != nil {
 		return nil, 0, err
 	}
-	if n < *incompleteUploadObject.ContentLength {
+	if incompleteUploadObject.ContentLength != nil && n < *incompleteUploadObject.ContentLength {
 		return nil, 0, errors.New("short read of incomplete upload")
 	}
 
